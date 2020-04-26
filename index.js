@@ -6,7 +6,8 @@ const Path = require('path');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 
-const Email = require('./lib/Email').default;
+const WelcomeEmail = require('./transpiledLibs/welcome_lib/Email').default;
+const CancellationEmail = require('./transpiledLibs/cancellation_lib/Email').default;
 
 const STYLE_TAG = '%STYLE%';
 const CONTENT_TAG = '%CONTENT%';
@@ -15,7 +16,9 @@ const CONTENT_TAG = '%CONTENT%';
  * Get the file from a relative path
  * @param {String} relativePath
  * @return {Promise.<string>}
- */
+*/
+
+
 function getFile(relativePath) {
   return new Promise((resolve, reject) => {
     const path = Path.join(__dirname, relativePath);
@@ -33,13 +36,13 @@ function getFile(relativePath) {
  * @param {Object} data
  * @return {Promise.<String>}
  */
-function createEmail(data) {
+function createWelcomeEmail(data) {
   return Promise.all([
-    getFile('./inlined.css'),
+    getFile('./transpiledLibs/welcome_lib/inlined-welcome.css'),
     getFile('./email.html'),
   ])
     .then(([style, template]) => {
-      const emailElement = React.createElement(Email, { data });
+      const emailElement = React.createElement(WelcomeEmail, { data });
       const content = ReactDOMServer.renderToStaticMarkup(emailElement);
 
       // Replace the template tags with the content
@@ -51,5 +54,26 @@ function createEmail(data) {
     });
 }
 
-module.exports = createEmail;
+function createCancellationEmail(data) {
+  return Promise.all([
+    getFile('./transpiledLibs/cancellation_lib/inlined-cancellation.css'),
+    getFile('./email.html'),
+  ])
+    .then(([style, template]) => {
+      const emailElement = React.createElement(CancellationEmail, { data });
+      const content = ReactDOMServer.renderToStaticMarkup(emailElement);
+
+      // Replace the template tags with the content
+      let emailHTML = template;
+      emailHTML = emailHTML.replace(CONTENT_TAG, content);
+      emailHTML = emailHTML.replace(STYLE_TAG, style);
+
+      return emailHTML;
+    });
+}
+
+module.exports = {
+  createWelcomeEmail,
+  createCancellationEmail
+}
 

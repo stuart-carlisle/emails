@@ -12,7 +12,7 @@ var _Email = require('./Email');
 
 var _Email2 = _interopRequireDefault(_Email);
 
-require('./inlined.css');
+require('./inlined-cancellation.css');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
